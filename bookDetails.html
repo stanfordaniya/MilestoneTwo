@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            background-color: #000000;
+            padding: 10px 0;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .book-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .book-details img {
+            max-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .book-details h2 {
+            font-size: 2em;
+            color: #2980b9;
+        }
+
+        .book-details p {
+            font-size: 1.2em;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .book-details .price {
+            font-size: 1.5em;
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+
+        .book-details a {
+            font-size: 1.2em;
+            color: #2980b9;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .book-details a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="bookshelf.html">My Bookshelf</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>Book Details</h1>
+        <div id="bookDetails" class="book-details"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let params = new URLSearchParams(window.location.search);
+            let bookId = params.get('id');
+
+            if (bookId) {
+                fetchBookDetails(bookId);
+            } else {
+                $('#bookDetails').html('<p>No book selected. Please go back to the search page.</p>');
+            }
+
+            // Function to fetch and display book details
+            function fetchBookDetails(bookId) {
+                $.ajax({
+                    url: `https://www.googleapis.com/books/v1/volumes/${bookId}?key=AIzaSyC7LacympO_n-WrND9RVNj88UXOmmpZUq8`,
+                    method: 'GET',
+                    success: function (data) {
+                        let book = data.volumeInfo;
+                        let saleInfo = data.saleInfo;
+                        let price = saleInfo && saleInfo.listPrice ? `${saleInfo.listPrice.amount} ${saleInfo.listPrice.currencyCode}` : 'Price not available';
+                        let googleBooksLink = book.infoLink;
+
+                        let bookHTML = `
+                            <img src="${book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/200x300'}" alt="${book.title}">
+                            <h2>${book.title}</h2>
+                            <p><strong>Authors:</strong> ${book.authors ? book.authors.join(', ') : 'Unknown Author'}</p>
+                            <p><strong>Publisher:</strong> ${book.publisher || 'Unknown Publisher'}</p>
+                            <p><strong>Published Date:</strong> ${book.publishedDate || 'Unknown Date'}</p>
+                            <p><strong>Description:</strong> ${book.description || 'No description available.'}</p>
+                            <p class="price"><strong>Price:</strong> ${price}</p>
+                            <a href="${googleBooksLink}" target="_blank">View on Google Books</a>
+                        `;
+                        $('#bookDetails').html(bookHTML);
+                    },
+                    error: function () {
+                        $('#bookDetails').html('<p>Error fetching book details. Please try again later.</p>');
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

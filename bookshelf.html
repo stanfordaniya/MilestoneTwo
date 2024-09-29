@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookshelf</title>
+    <style>
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+    margin: 0;  /* Removes any default margin */
+    padding: 0;  /* Removes any default padding */
+            }
+
+            nav {
+                margin: 0;   /* Removes any margin from the nav */
+                padding: 0;  /* Removes any padding from the nav */
+            }
+
+            nav ul {
+                list-style: none;
+                display: flex;
+                justify-content: center;
+                background-color: #000000;
+                padding: 10px 0;  /* Controls the height and spacing of the nav */
+                margin: 0;        /* Removes margin from the list */
+            }
+
+            nav ul li {
+                margin: 0 15px;
+            }
+
+            nav ul li a {
+                color: white;
+                text-decoration: none;
+                font-size: 1.2em;
+            }
+
+            nav ul li a:hover {
+                text-decoration: underline;
+            }
+
+
+        .container {
+            max-width: 1100px;
+            margin: 60px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .book-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .book-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .book-item img {
+            max-width: 100px;
+            margin-bottom: 15px;
+        }
+
+        .book-item a {
+            font-size: 1.2em;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .book-item a:hover {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="bookshelf.html">My Bookshelf</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>My Bookshelf</h1>
+        <div class="book-list" id="bookList"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            fetchBookshelf();
+
+            // Function to fetch and display books from Google Books public bookshelf
+            function fetchBookshelf() {
+                $.ajax({
+                    url: `https://www.googleapis.com/books/v1/users/112270656996048448415/bookshelves/1001/volumes?key=AIzaSyC7LacympO_n-WrND9RVNj88UXOmmpZUq8`,
+                    method: 'GET',
+                    success: function (data) {
+                        displayBooks(data.items);
+                    },
+                    error: function () {
+                        $('#bookList').html('<p>Error fetching bookshelf. Please try again later.</p>');
+                    }
+                });
+            }
+
+            // Function to display books
+            function displayBooks(books) {
+                let bookList = $('#bookList');
+                bookList.empty();
+
+                if (!books || books.length === 0) {
+                    bookList.html('<p>No books in your bookshelf. Please add some to your public bookshelf on Google Books.</p>');
+                    return;
+                }
+
+                books.forEach(book => {
+                    let volumeInfo = book.volumeInfo;
+                    bookList.append(`
+                        <div class="book-item">
+                            <img src="${volumeInfo.imageLinks ? volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/100x150'}" alt="${volumeInfo.title}">
+                            <a href="bookDetails.html?id=${book.id}">${volumeInfo.title}</a>
+                            <p>by ${volumeInfo.authors ? volumeInfo.authors.join(', ') : 'Unknown Author'}</p>
+                        </div>
+                    `);
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
